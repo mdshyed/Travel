@@ -1,0 +1,19 @@
+[phases.setup]
+cmds = [
+  "npm install"
+]
+
+[phases.install]
+cmds = [
+  "cd frontend && npm install"
+]
+
+[phases.build]
+cmds = [
+  "cd frontend && npm run build",
+  "mkdir -p backend_mongo/frontend-dist",
+  "cp -r frontend/dist/* backend_mongo/frontend-dist/"
+]
+
+[start]
+cmd = "cd backend_mongo && npm start"

@@ -4,9 +4,10 @@
   "description": "Travel App - Full Stack Application with React Frontend and Node.js Backend",
   "scripts": {
     "build": "cd frontend && npm install && npm run build",
-    "predeploy": "cd frontend && npm install && npm run build && cp -r dist ../backend_mongo/frontend-dist",
-    "deploy": "cd backend_mongo && npm install && npm start",
-    "start": "cd backend_mongo && npm start",
+    "predeploy": "npm run build && mkdir -p backend_mongo/frontend-dist && cp -r frontend/dist/* backend_mongo/frontend-dist/",
+    "deploy": "npm run predeploy && cd backend_mongo && npm install && npm start",
+    "start": "npm run predeploy && cd backend_mongo && npm start", 
+    "railway": "npm run predeploy && cd backend_mongo && npm start",
     "dev": "concurrently \"cd frontend && npm run dev\" \"cd backend_mongo && npm run dev\""
   },
   "engines": {

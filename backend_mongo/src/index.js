@@ -13,11 +13,12 @@ dotenv.config();
 
 const app = express();
 
-// Enable CORS for frontend deployment
-app.use(cors({
-  origin: process.env.FRONTEND_URL || "http://localhost:3000",
+// Enable CORS for all origins (production deployment)
+const corsOptions = {
+  origin: process.env.NODE_ENV === 'production' ? true : "http://localhost:3000",
   credentials: true
-}));
+};
+app.use(cors(corsOptions));
 
 app.use(express.json());
 
@@ -35,6 +36,7 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/travel-ap
   console.error("MongoDB connection error:", err);
 });
 
+// API Routes
 app.get("/api/health", (req, res) => {
   const mongoStatus = mongoose.connection.readyState === 1 ? "Connected" : "Disconnected";
   res.json({ 
@@ -44,13 +46,39 @@ app.get("/api/health", (req, res) => {
   });
 });
 
+// Fallback route for any unmatched API paths
+app.get("/", (req, res) => {
+  if (process.env.NODE_ENV === 'production') {
+    res.sendFile(path.join(__dirname, 'frontend-dist/index.html'), (err) => {
+      if (err) {
+        res.status(200).json({
+          message: "Travel App Backend API",
+          health: "/api/health",
+          status: "running"
+        });
+      }
+    });
+  } else {
+    res.json({
+      message: "Travel App Backend API",
+      health: "/api/health",
+      status: "running"
+    });
+  }
+});
+
 app.use("/api/users", userRoutes);
 app.use("/api/trips", tripRoutes);
 
 // Serve React app on all non-API routes (for production deployment)
 if (process.env.NODE_ENV === 'production') {
   app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'frontend-dist/index.html'));
+    res.sendFile(path.join(__dirname, 'frontend-dist/index.html'), (err) => {
+      if (err) {
+        console.error('Error serving React app:', err);
+        res.status(500).send('Error serving React app');
+      }
+    });
   });
 }
 

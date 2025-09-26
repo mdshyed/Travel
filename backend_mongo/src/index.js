@@ -23,7 +23,7 @@ app.use(express.json());
 
 // Serve static files from frontend build
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static('../frontend/dist'));
+  app.use(express.static('frontend-dist'));
 }
 
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/travel-app', {
@@ -50,7 +50,7 @@ app.use("/api/trips", tripRoutes);
 // Serve React app on all non-API routes (for production deployment)
 if (process.env.NODE_ENV === 'production') {
   app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
+    res.sendFile(path.join(__dirname, 'frontend-dist/index.html'));
   });
 }
 
